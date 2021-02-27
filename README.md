@@ -9,9 +9,10 @@ https://chrome.google.com/webstore/detail/ignore-x-frame-headers/gleekbfjekiniec
 ```
 
 ## Override Mode on Google Chrome Console:
-## Because we dont know the parameters to call the api
-## So we need to embed the webpage into our Application then we detect the parameters 
-## and send it to our app. At that time, we can call the api
+
+Because we dont know the parameters to call the api
+So we need to embed the webpage into our Application then we detect the parameters 
+and send it to our app. At that time, we can call the api
 ## The detection script looks like:
 
 ```
