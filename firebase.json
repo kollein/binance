@@ -1,5 +1,6 @@
 {
   "hosting": {
+    "site": "binance2021",
     "public": "dist",
     "ignore": [
       "firebase.json",
