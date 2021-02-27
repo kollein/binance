@@ -20,7 +20,7 @@ export default {
       win: 0,
       lose: 0,
     },
-    intervalList: ['1m', '5m', '15m'],
+    intervalList: ['1m', '5m', '15m', '1h'],
     interval: '1m',
     profitPercent: 1,
     startAtHour: 12,
@@ -60,8 +60,8 @@ export default {
       return request;
     },
     getRequestIndexByUrl: (state) => (url) => {
-      const request = state.stackRequests.findIndex((x) => x.url === url);
-      return request;
+      const index = state.stackRequests.findIndex((x) => x.url === url);
+      return index;
     },
     getLastUrlInStorage: () => () => {
       const lastUrlInStorage = localStorage.getItem('lastUrl');
@@ -147,7 +147,7 @@ export default {
     }),
     updateRunningRound: ({ state, commit, getters }, payload) => new Promise((resolve) => {
       const round = payload;
-      console.log('updateRunningRound', round);
+      // console.log('updateRunningRound', round);
       const start = round[0]; // milisecs
       const end = round[6];
       const high = parseFloat(round[2]);
@@ -180,11 +180,13 @@ export default {
 
       const statis = [];
       const startAtTimeStr = `${state.startAtHour}:00:00:000`;
-      const endAtHour = parseInt(state.startAtHour, 10) + (23 - 24);
+      let endAtHour = parseInt(state.startAtHour, 10) + (23 - 24);
+      endAtHour = endAtHour < 10 ? `0${endAtHour}` : `${endAtHour}`;
       const endAtTimeStrMap = {
         '1m': `${endAtHour}:59:00:000`,
         '5m': `${endAtHour}:55:00:000`,
         '15m': `${endAtHour}:45:00:000`,
+        '1h': `${endAtHour}:00:00:000`,
       };
       const endAtTimeStr = endAtTimeStrMap[state.interval];
       const defaultPrev = [0, '0', '0', '0', '0', '0', 0, '0', 0, '0', '0', '0'];
@@ -193,6 +195,7 @@ export default {
       let itemMiddle = { name: 'itemMiddle' }; // stop profit n% at here
       let itemEnd = { name: 'itemEnd' };
       let itemHighest = { name: 'itemHighest' };
+      let itemLowest = { name: 'itemLowest' };
       const statisCounter = { ...state.statisCounter };
       statisCounter.total = 0;
       statisCounter.win = 0;
@@ -206,22 +209,23 @@ export default {
         // current time
         const d = moment(start);
         const timeStr = d.format('HH:mm:ss:SSS');
-        const dateStr = d.format('DD/MM/YYYY');
+        // const dateStr = d.format('DD/MM/YYYY');
         // prev time
-        const prevD = moment(start);
+        // const prevD = moment(start);
         // const prevTimeStr = prevD.format('HH:mm:ss:SSS');
-        const prevDateStr = prevD.format('DD/MM/YYYY');
+        // const prevDateStr = prevD.format('DD/MM/YYYY');
 
         // xx:00:00
         const startAt = d.format('dddd, MMMM Do YYYY, HH:mm:ss');
         if (timeStr === startAtTimeStr) {
           // we make sure the bad price is chosen
           itemHighest.high = low;
+          itemLowest.low = low;
           console.log('timeStr', timeStr, start, prev);
           const profitPercent = parseFloat(state.profitPercent);
           const stopProfitAtPrice = getters.getStopProfitAtPrice(high, profitPercent);
           const nextStart = d.add(1, 'day'); // milisecs
-          console.log('nextStart', nextStart);
+          // console.log('nextStart', nextStart);
           itemStart = {
             name: 'itemStart',
             groupKey: start,
@@ -237,21 +241,23 @@ export default {
 
         // we make sure the start item exists
         if (itemStart.start) {
-          // highest in 24 hours
-          let checkIn24Hours = false;
-          // 0h -> 23h
-          if (state.startAtHour === 0) {
-            checkIn24Hours = prevDateStr === dateStr;
-          } else {
-            // 'a'h -> (a-1)h of tomorrow
-            checkIn24Hours = start < itemStart.nextStart;
-          }
+          // highest/lowest in 24 hours
+          const checkIn24Hours = start < itemStart.nextStart;
+
           // cache the highest item
-          if (checkIn24Hours && high > itemHighest.high) {
+          if (checkIn24Hours && high >= itemHighest.high) {
             itemHighest = {
               start,
               startAt,
               high,
+            };
+          }
+          // cache the lowest item
+          if (checkIn24Hours && low <= itemLowest.low) {
+            itemLowest = {
+              start,
+              startAt,
+              low,
             };
           }
           // detect the stop profit item at n%(profit)
@@ -291,6 +297,7 @@ export default {
               low,
               startAt,
               highestItem: itemHighest,
+              lowestItem: itemLowest,
             };
             statis.push(itemEnd);
             // update counter
@@ -310,6 +317,7 @@ export default {
             itemMiddle = { name: 'itemMiddle' };
             itemEnd = { name: 'itemEnd' };
             itemHighest = { name: 'itemHighest' };
+            itemLowest = { name: 'itemLowest' };
           }
         }
 
@@ -352,9 +360,8 @@ export default {
       }
 
       const index = getters.getRequestIndexByUrl(newUrl);
-      if (index > 0) return;
-
-      const stackRequests = [...state.stackRequests];
+      let stackRequests = [];
+      stackRequests = [...state.stackRequests];
       const item = {
         url: newUrl,
         result: [],
@@ -362,8 +369,18 @@ export default {
         isFirst,
         timestamp: new Date().getTime(),
       };
-      stackRequests.push(item);
-      console.log('item', item);
+
+      if (index > -1) {
+        if (!isFirst) return;
+
+        // renew the tour
+        stackRequests[index].status = 'pending';
+      } else {
+        // add next round
+        stackRequests.push(item);
+      }
+
+      // console.log('addStackUrl', item);
       commit('setByProp', { stackRequests });
       resolve();
     }),

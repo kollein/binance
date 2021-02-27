@@ -27,7 +27,7 @@
             </div>
             <div class="col-6">
               <div>
-                {{ sellPriceNow.toFixed(2) }}
+                {{ sellPriceNow }}
                 <b-badge variant="info">Sell price</b-badge>
               </div>
               <div>
@@ -96,8 +96,15 @@
               <b-badge
                 variant="info"
                 v-b-tooltip.hover
-                :title="getHighestInfo(item.highestItem)"
+                :title="getTooltipInfo(item.highestItem)"
                 >Highest/24h</b-badge
+              >
+              {{ item.lowestItem.low }}
+              <b-badge
+                variant="info"
+                v-b-tooltip.hover
+                :title="getTooltipInfo(item.lowestItem, false)"
+                >Lowest/24h</b-badge
               >
             </div>
           </template>
@@ -154,8 +161,9 @@ export default {
       await this.addStackUrl(params);
       await this.updateRounds();
     },
-    getHighestInfo(item) {
-      const info = `${item.startAt} | ${item.high}`;
+    getTooltipInfo(item, isHigh = true) {
+      const price = isHigh ? item.high : item.low;
+      const info = `${item.startAt} | ${price}`;
       return info;
     },
   },
