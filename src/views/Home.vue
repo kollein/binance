@@ -2,7 +2,8 @@
   <div class="home-page">
     <div class="action-wrapper">
       <div class="row mx-0">
-        <div class="col-2 action-box">
+        <div class="col-4 action-box">
+          <b-button v-b-modal.modal-code>Code</b-button>
           <b-button @click="showChart()">Show</b-button>
           <b-button
             v-for="(item, index) in intervalList"
@@ -37,12 +38,12 @@
             </div>
           </div>
         </div>
-        <div class="col-3 counter-box">
+        <div class="col-2 counter-box">
           <b-button>Total: {{ statisCounter.total }}</b-button>
           <b-button>Win: {{ statisCounter.win }}</b-button>
           <b-button>Lose: {{ statisCounter.lose }}</b-button>
         </div>
-        <div class="col-4 options-box row">
+        <div class="col-3 options-box row">
           <div class="time-wrapper col-6">
             <b-form-select
               v-model="selectedTime"
@@ -111,6 +112,20 @@
         </div>
       </div>
     </div>
+    <b-modal id="modal-code" title="Override Instructions">
+      <p class="my-4">
+        # Require Third-party Setup:
+        <a
+          href="https://chrome.google.com/webstore/detail/ignore-x-frame-headers/gleekbfjekiniecknbkamfmkohkpodhe"
+        >
+          Ignore X-Frame headers </a
+        ><br />
+        # Turn on <b>Override Mode</b> in Google Chrome: Console > Source >
+        Override<br />
+        # Find an js file to override with this code:
+        <a href="/code.js" title="Override Code">Download</a>
+      </p>
+    </b-modal>
   </div>
 </template>
 
