@@ -16,6 +16,7 @@ import App from './App.vue';
 import store from './store/index';
 import router from './router/index';
 import i18n from './lang/index';
+import currencyFilter from './filters/currency';
 
 // STYLE DESKTOP/MOBILE
 import './styles/styles.scss';
@@ -28,6 +29,9 @@ let isMobile = false;
 if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
   isMobile = true;
 }
+
+// FILTERS
+Vue.filter('currency', currencyFilter);
 
 // VUEX
 Vue.config.productionTip = false;

@@ -3,16 +3,19 @@
     <div class="action-wrapper">
       <div class="row mx-0">
         <div class="col-4 action-box">
-          <b-button v-b-modal.modal-code>Code</b-button>
-          <b-button @click="showChart()">Show</b-button>
-          <b-button
-            v-for="(item, index) in intervalList"
-            :key="index"
-            @click="updateStorageItem({ name: 'interval', value: item })"
-            :class="{ active: item === interval }"
-          >
-            {{ item }}
-          </b-button>
+          <b-button class="mr-1" v-b-modal.modal-code>Code</b-button>
+          <b-button class="mr-1" v-b-modal.modal-future>Future</b-button>
+          <b-button class="mr-1" @click="showChart()">Show</b-button>
+          <b-button-group>
+            <b-button
+              v-for="(item, index) in intervalList"
+              :key="index"
+              @click="updateStorageItem({ name: 'interval', value: item })"
+              :class="{ active: item === interval }"
+            >
+              {{ item }}
+            </b-button>
+          </b-button-group>
         </div>
         <div class="col-3 tool-box">
           <div class="row">
@@ -24,6 +27,7 @@
               <b-form-input
                 v-model="sellPrice"
                 placeholder="Enter your sell price"
+                class="mt-1"
               ></b-form-input>
             </div>
             <div class="col-6">
@@ -38,12 +42,12 @@
             </div>
           </div>
         </div>
-        <div class="col-2 counter-box">
-          <b-button>Total: {{ statisCounter.total }}</b-button>
-          <b-button>Win: {{ statisCounter.win }}</b-button>
-          <b-button>Lose: {{ statisCounter.lose }}</b-button>
+        <div class="col-3 counter-box">
+          <b-button class="mr-1">Total: {{ statisCounter.total }}</b-button>
+          <b-button class="mr-1">Win: {{ statisCounter.win }}</b-button>
+          <b-button class="mr-1">Lose: {{ statisCounter.lose }}</b-button>
         </div>
-        <div class="col-3 options-box row">
+        <div class="col-2 options-box row">
           <div class="time-wrapper col-6">
             <b-form-select
               v-model="selectedTime"
@@ -122,9 +126,64 @@
         ><br />
         # Turn on <b>Override Mode</b> in Google Chrome: Console > Source >
         Override<br />
-        # Find an js file to override with this code:
+        # Find a js file to override with this code:
         <a href="/code.js" title="Override Code">Download</a>
       </p>
+    </b-modal>
+
+    <b-modal id="modal-future" title="Expectations For Years Later" size="lg">
+      <div class="content-wrapper">
+        <div class="item-base">
+          <b-badge variant="info">28/02/2021</b-badge>
+          <h1>Analyse by market</h1>
+          <h4>Bitcoin is a standard coin to follow the trace</h4>
+          <div class="info-wrapper">
+            <div>Current Price: $45K</div>
+            <div>Market Cap: $840B</div>
+            <div>Max supply: 21M</div>
+          </div>
+        </div>
+        <hr class="my-4" />
+        <div
+          class="item-expect mb-4"
+          v-for="(item, index) in expectedCoins"
+          :key="index"
+        >
+          <h4>{{ item.name }}</h4>
+          <b-list-group>
+            <b-list-group-item>
+              Current Price: ${{ item.price | currency }}
+            </b-list-group-item>
+            <b-list-group-item>
+              Market Cap: ${{ item.marketCap | currency }}
+            </b-list-group-item>
+            <b-list-group-item>
+              Max Supply:
+              <template v-if="item.maxSupply > 0">
+                {{ item.maxSupply | currency }}
+              </template>
+              <template v-else>No data</template>
+            </b-list-group-item>
+            <b-list-group-item>
+              <i>
+                Expect the {{ item.symbol }}'s Market Cap will increase to
+                Bitcoin one with the growth ratio {{ item.growthCore }}
+              </i>
+            </b-list-group-item>
+            <b-list-group-item>
+              ({{ bitcoin.marketCap }} / {{ item.marketCap }}) /
+              {{ item.growthCore }} = {{ item.xTime }} (time)
+            </b-list-group-item>
+            <b-list-group-item>
+              So, the {{ item.symbol }} future price will be:
+            </b-list-group-item>
+            <b-list-group-item>
+              {{ item.price }} * {{ item.xTime }} =
+              <b>${{ item.expectedPrice | currency }}</b>
+            </b-list-group-item>
+          </b-list-group>
+        </div>
+      </div>
     </b-modal>
   </div>
 </template>
@@ -143,9 +202,14 @@ export default {
       selectedProfit: 1,
       profitOptions: [{ value: 0.2, text: '0.2%' }, { value: 0.3, text: '0.3%' }, { value: 0.4, text: '0.4%' }, { value: 0.5, text: '0.5%' }, { value: 1, text: '1%' }, { value: 2, text: '2%' }, { value: 3, text: '3%' }, { value: 4, text: '4%' }, { value: 5, text: '5%' }, { value: 6, text: '6%' }, { value: 7, text: '7%' }, { value: 8, text: '8%' }, { value: 9, text: '9%' }, { value: 10, text: '10%' }, { value: 11, text: '11%' }, { value: 12, text: '12%' }, { value: 13, text: '13%' }, { value: 14, text: '14%' }, { value: 15, text: '15%' }, { value: 16, text: '16%' }, { value: 17, text: '17%' }, { value: 18, text: '18%' }, { value: 19, text: '19%' }, { value: 20, text: '20%' }, { value: 50, text: '50%' }, { value: 100, text: '100%' }],
       selectedTime: 12,
-      timeOptions: [{ value: '00', text: '00:00:00' }, { value: '01', text: '01:00:00' }, { value: '02', text: '02:00:00' }, { value: '03', text: '03:00:00' }, { value: '04', text: '04:00:00' }, { value: '05', text: '05:00:00' }, { value: '06', text: '06:00:00' }, { value: '07', text: '07:00:00' }, { value: '08', text: '08:00:00' }, { value: '09', text: '09:00:00' }, { value: '10', text: '10:00:00' }, { value: '11', text: '11:00:00' }, { value: '12', text: '12:00:00' }, { value: '13', text: '13:00:00' }, { value: '14', text: '14:00:00' }, { value: '15', text: '15:00:00' }, { value: '16', text: '16:00:00' }, { value: '17', text: '17:00:00' }, { value: '18', text: '18:00:00' }, { value: '19', text: '19:00:00' }, { value: '20', text: '20:00:00' }, { value: '21', text: '21:00:00' }, { value: '22', text: '22:00:00' }, { value: '23', text: '23:00:00' }],
+      timeOptions: [{ value: '00', text: '00:00' }, { value: '01', text: '01:00' }, { value: '02', text: '02:00' }, { value: '03', text: '03:00' }, { value: '04', text: '04:00' }, { value: '05', text: '05:00' }, { value: '06', text: '06:00' }, { value: '07', text: '07:00' }, { value: '08', text: '08:00' }, { value: '09', text: '09:00' }, { value: '10', text: '10:00' }, { value: '11', text: '11:00' }, { value: '12', text: '12:00' }, { value: '13', text: '13:00' }, { value: '14', text: '14:00' }, { value: '15', text: '15:00' }, { value: '16', text: '16:00' }, { value: '17', text: '17:00' }, { value: '18', text: '18:00' }, { value: '19', text: '19:00' }, { value: '20', text: '20:00' }, { value: '21', text: '21:00' }, { value: '22', text: '22:00' }, { value: '23', text: '23:00' }],
       buyPrice: 0,
       sellPrice: 0,
+      bitcoin: {
+        price: 45000,
+        marketCap: 840000000000,
+        maxSupply: 21000000,
+      },
     };
   },
   computed: {
@@ -154,6 +218,49 @@ export default {
     },
     profitInPercent() {
       return this.getProfitInPercent(this.buyPrice, this.sellPrice);
+    },
+    expectedCoins() {
+      const coinList = [
+        {
+          name: 'Ethereum',
+          symbol: 'ETH',
+          price: 1400,
+          marketCap: 160000000000,
+          maxSupply: 0,
+          xTime: 0,
+          expectedPrice: 0,
+          growthCore: 1, // highest
+        },
+        {
+          name: 'Litecoin',
+          symbol: 'LTC',
+          price: 160,
+          marketCap: 10000000000,
+          maxSupply: 84000000,
+          xTime: 0,
+          expectedPrice: 0,
+          growthCore: 10,
+        },
+        {
+          name: 'Ripple',
+          symbol: 'XRP',
+          price: 0.4,
+          marketCap: 18000000000,
+          maxSupply: 100000000000,
+          xTime: 0,
+          expectedPrice: 0,
+          growthCore: 20,
+        },
+      ];
+
+      const coins = coinList.map((x) => {
+        const item = { ...x };
+        // why minus for 5 (because the growth of each coin is different)
+        item.xTime = (this.bitcoin.marketCap / x.marketCap) / x.growthCore;
+        item.expectedPrice = item.xTime * x.price;
+        return item;
+      });
+      return coins;
     },
   },
   watch: {
