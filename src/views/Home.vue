@@ -2,11 +2,11 @@
   <div class="home-page">
     <div class="action-wrapper">
       <div class="row mx-0">
-        <div class="col-4 action-box">
+        <div class="col-md-4 col-12 action-box">
           <b-button class="mr-1" v-b-modal.modal-code>Code</b-button>
           <b-button class="mr-1" v-b-modal.modal-future>Future</b-button>
           <b-button class="mr-1" @click="showChart()">Show</b-button>
-          <b-button-group>
+          <b-button-group class="mt-md-0 mt-1">
             <b-button
               v-for="(item, index) in intervalList"
               :key="index"
@@ -17,7 +17,7 @@
             </b-button>
           </b-button-group>
         </div>
-        <div class="col-3 tool-box">
+        <div class="col-md-3 col-12 mt-md-0 mt-4 tool-box">
           <div class="row">
             <div class="col-6">
               <b-form-input
@@ -42,12 +42,12 @@
             </div>
           </div>
         </div>
-        <div class="col-3 counter-box">
+        <div class="col-md-3 col-12 mt-md-0 mt-4 counter-box">
           <b-button class="mr-1">Total: {{ statisCounter.total }}</b-button>
           <b-button class="mr-1">Win: {{ statisCounter.win }}</b-button>
           <b-button class="mr-1">Lose: {{ statisCounter.lose }}</b-button>
         </div>
-        <div class="col-2 options-box row">
+        <div class="col-md-2 col-12 mt-md-0 mt-4 options-box row">
           <div class="time-wrapper col-6">
             <b-form-select
               v-model="selectedTime"
@@ -167,7 +167,7 @@
             <b-list-group-item>
               <i>
                 Expect the {{ item.symbol }}'s Market Cap will increase to
-                Bitcoin one with the growth ratio {{ item.growthCore }}
+                Bitcoin one with the growth ratio 1:{{ item.growthCore }}
               </i>
             </b-list-group-item>
             <b-list-group-item>

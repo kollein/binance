@@ -1,6 +1,6 @@
 <template>
   <div id="app" v-if="isReady">
-    <div class="iframe-container" ref="iframeContainer">
+    <div class="iframe-container" ref="iframeContainer" v-if="!isMobile">
       <iframe
         :src="iframeSrc"
         frameborder="0"
