@@ -87,7 +87,7 @@ export default {
         if (!isReady) {
           // iframe source
           const lastUrl = this.getLastUrlInStorage();
-          console.log('lastUrl', lastUrl);
+          // console.log('lastUrl', lastUrl);
           const iframeSrc = lastUrl || this.homeUrl;
           this.setByProp({ iframeSrc });
           // profit percent

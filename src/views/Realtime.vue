@@ -10,9 +10,8 @@
         class="col-md-4 col-sm-6 col-12 mt-4"
         v-for="(item, index) in slots"
         :key="index"
-        :ref="`card${index}`"
       >
-        <b-card>
+        <b-card :ref="`card${index}`">
           <template #header>
             <span class="text-uppercase">{{ item.pairOfCoinsWithHyphen }}</span>
             <b-badge variant="info" class="ml-1">{{ item.status }}</b-badge>
@@ -25,7 +24,7 @@
             ></b-form-input>
             <b-form-input
               v-model="slots[index].buyPrice"
-              placeholder="Enter your buy price"
+              placeholder="Enter buy price"
               spellcheck="false"
               class="mt-2"
             ></b-form-input>
@@ -56,7 +55,7 @@
               <div class="col-6">
                 <b-form-input
                   v-model="slots[index].sellPrice"
-                  placeholder="Enter your sell price"
+                  placeholder="Sell price"
                   spellcheck="false"
                 ></b-form-input>
               </div>
@@ -77,22 +76,23 @@
                 <b-badge variant="info">Sell price</b-badge>
               </div>
             </div>
-            <div class="mt-4 d-flex justify-content-between">
-              <b-button variant="success" @click="show()"> Show </b-button>
-              <div class="position-relative">
-                <b-overlay
-                  :show="isLoadingApp"
-                  rounded
-                  opacity="0.6"
-                  spinner-small
-                  spinner-variant="primary"
-                  class="d-flex"
-                >
+            <div class="mt-2 action-wrapper">
+              <b-overlay
+                :show="isLoadingApp"
+                rounded
+                opacity="0.6"
+                spinner-small
+                spinner-variant="primary"
+                class="py-2"
+              >
+                <div class="d-flex justify-content-between">
+                  <b-button variant="success" @click="show()">Show</b-button>
+
                   <b-button variant="info" @click="sendReport(index)">
                     @Send
                   </b-button>
-                </b-overlay>
-              </div>
+                </div>
+              </b-overlay>
             </div>
           </b-card-text>
         </b-card>
@@ -120,51 +120,51 @@ export default {
   },
   methods: {
     connect() {
+      this.filterSlots();
+      // init
+      const streamListStr = this.streamList.join('/');
+      this.wss = new WebSocket(`wss://stream.binance.com:9443/stream?streams=${streamListStr}`);
+      // console.log(this.wss);
+
+      this.wss.onmessage = (evt) => {
+        // console.log('onmessage', evt);
+        try {
+          const data = JSON.parse(evt.data);
+
+          // on result
+          if (data.id) {
+            this.onResult(data);
+          }
+
+          // on stream
+          if (data.stream) {
+            this.onStream(data);
+          }
+        } catch (e) {
+          // console.log('Unknown message: ', evt.data, e);
+        }
+      };
+
+      this.wss.onclose = () => {
+        console.log('WebSocket is closed now. Re-conmnect!');
+        this.connect();
+      };
+    },
+    filterSlots() {
       this.streamList = this.slots.map((item) => {
         if (item.status !== 'open') return null;
 
         return `${item.pairOfCoins}${this.detailStream}`;
       }).filter((x) => x);
-
-      // init
-      if (!this.wss) {
-        const streamListStr = this.streamList.join('/');
-        this.wss = new WebSocket(`wss://stream.binance.com:9443/stream?streams=${streamListStr}`);
-        // console.log(this.wss);
-
-        this.wss.onmessage = (evt) => {
-          // console.log('onmessage', evt);
-          try {
-            const data = JSON.parse(evt.data);
-
-            // on result
-            if (data.id) {
-              this.onResult(data);
-            }
-
-            // on stream
-            if (data.stream) {
-              this.onStream(data);
-            }
-          } catch (e) {
-            // console.log('Unknown message: ', evt.data, e);
-          }
-        };
-
-        return;
-      }
-
-      // list the current streams to reset
-      const paramList = {
-        method: 'LIST_SUBSCRIPTIONS',
-        id: 3,
-      };
-      this.wss.send(JSON.stringify(paramList));
     },
     onResult(res) {
       const { id, result } = res;
       // console.log('onResult', id, result);
-      // list subscriptions
+      // subscribe success
+      if (id === 1) {
+        this.setByProp({ isLoadingApp: false });
+      }
+      // list subscriptions success
       if (id === 3) {
         // streams are subscribing
         const curStreamList = result;
@@ -244,9 +244,9 @@ export default {
       localStorage.setItem('slots', JSON.stringify(this.slots));
     },
     show() {
-      // console.log('show');
+      this.setByProp({ isLoadingApp: true });
       this.updateSlots();
-      this.connect();
+      this.subscribe();
     },
     getCardElement(index) {
       const element = this.$refs[`card${index}`];
@@ -277,35 +277,50 @@ export default {
     clearSlots() {
       localStorage.setItem('slots', '');
     },
+    initSlots() {
+      let hasLocalSlots = false;
+
+      try {
+        let localSlots = localStorage.getItem('slots');
+        localSlots = JSON.parse(localSlots);
+        if (localSlots.length) {
+          hasLocalSlots = true;
+          this.slots = localSlots;
+        }
+      } catch (e) {
+        this.error = e;
+      }
+
+      if (hasLocalSlots) return;
+
+      this.slots = [...new Array(this.numberPair)].map((x, index) => {
+        const item = {
+          id: index,
+          status: 'closed',
+          buyPrice: '',
+          pairOfCoinsWithHyphen: '',
+          amount: '',
+          sellPrice: '',
+          selectedProfitInPercent: 1,
+        };
+        return item;
+      });
+    },
+    subscribe() {
+      // list the current streams then reset
+      // by onResult
+      const paramList = {
+        method: 'LIST_SUBSCRIPTIONS',
+        id: 3,
+      };
+      this.wss.send(JSON.stringify(paramList));
+    },
   },
   created() {
-    let hasLocalSlots = false;
+    this.initSlots();
+    if (this.wss) return;
 
-    try {
-      let localSlots = localStorage.getItem('slots');
-      localSlots = JSON.parse(localSlots);
-      if (localSlots.length) {
-        hasLocalSlots = true;
-        this.slots = localSlots;
-      }
-    } catch (e) {
-      this.error = e;
-    }
-
-    if (hasLocalSlots) return;
-
-    this.slots = [...new Array(this.numberPair)].map((x, index) => {
-      const item = {
-        id: index,
-        status: 'closed',
-        buyPrice: '',
-        pairOfCoinsWithHyphen: '',
-        amount: '',
-        sellPrice: '',
-        selectedProfitInPercent: 1,
-      };
-      return item;
-    });
+    this.connect();
   },
 };
 </script>

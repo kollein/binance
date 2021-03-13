@@ -132,10 +132,10 @@ export default {
     sendPhoto: ({ commit }, payload) => new Promise((resolve, reject) => {
       commit('setByProp', { isLoadingApp: true });
       const formData = payload;
-      console.log('formData', formData);
+      // console.log('formData', formData);
       return axiosTelegram.post('/sendPhoto', formData)
         .then((res) => {
-          console.log('sendPhoto res', res);
+          // console.log('sendPhoto res', res);
           commit('setByProp', { isLoadingApp: false });
           resolve(res);
         })
