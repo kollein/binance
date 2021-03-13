@@ -1,4 +1,5 @@
 import axios from '@/api';
+import axiosTelegram from '@/api/telegram';
 import * as moment from 'moment/moment';
 import groupBy from 'lodash/groupBy';
 // import twoDigits from '@/helpers/twoDigits';
@@ -31,6 +32,7 @@ export default {
     },
     runningRound: {},
     lastUrl: '',
+    isLoadingApp: false,
   },
   mutations: {
     setByProp(state, data) {
@@ -127,6 +129,18 @@ export default {
     },
   },
   actions: {
+    sendPhoto: ({ commit }, payload) => new Promise((resolve, reject) => {
+      commit('setByProp', { isLoadingApp: true });
+      const formData = payload;
+      console.log('formData', formData);
+      return axiosTelegram.post('/sendPhoto', formData)
+        .then((res) => {
+          console.log('sendPhoto res', res);
+          commit('setByProp', { isLoadingApp: false });
+          resolve(res);
+        })
+        .catch((err) => reject(err));
+    }),
     updateRounds: ({
       getters, state, commit, dispatch,
     }) => new Promise((resolve, reject) => {

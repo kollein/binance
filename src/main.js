@@ -49,6 +49,7 @@ Vue.mixin({
       'updateInterval',
       'updateRounds',
       'updateStorageItem',
+      'sendPhoto',
     ]),
   },
   computed: {
