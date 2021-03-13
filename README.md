@@ -1,5 +1,7 @@
 # binance-demo
 
+## HOME PAGE:
+
 ## Tool for analyse the crypto currency to trade on the webpage: binance.com
 
 ## Require Third-party Setup:
@@ -65,6 +67,14 @@ setInterval(() => {
     prevUrl = curUrl;
   }
 }, 100);
+```
+
+## REALTIME PAGE
+
+### Where to show you the real-time interest of your coin by entering the buy price.
+
+```
+https://github.com/binance/binance-spot-api-docs/blob/master/web-socket-streams.md
 ```
 
 

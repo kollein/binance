@@ -1,6 +1,6 @@
 <template>
   <div id="app" v-if="isReady">
-    <div class="iframe-container" ref="iframeContainer" v-if="!isMobile">
+    <div class="iframe-container" ref="iframeContainer" v-if="!isMobile && $route.name === 'Home'">
       <iframe
         :src="iframeSrc"
         frameborder="0"
