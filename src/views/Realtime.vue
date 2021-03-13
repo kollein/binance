@@ -2,7 +2,15 @@
   <div class="about">
     <div class="text-center">
       <h1>Realtime price:</h1>
-      <b-button variant="success" @click="clearSlots()">Clear</b-button>
+      <div class="d-flex justify-content-center">
+        <div class="col-md-3 col-4 px-0">
+          <b-form-select
+            v-model="numberSlots"
+            :options="numberSlotsOptions"
+          ></b-form-select>
+        </div>
+        <b-button class="ml-2" variant="success" @click="clearSlots()">Clear</b-button>
+      </div>
     </div>
 
     <div class="d-flex flex-wrap">
@@ -114,8 +122,9 @@ export default {
       isEntering: false,
       detailStream: '@trade',
       streamList: [],
-      numberPair: 6,
+      numberSlots: 2,
       profitOptions: [{ value: 0.2, text: '0.2%' }, { value: 0.3, text: '0.3%' }, { value: 0.4, text: '0.4%' }, { value: 0.5, text: '0.5%' }, { value: 1, text: '1%' }, { value: 2, text: '2%' }, { value: 3, text: '3%' }, { value: 4, text: '4%' }, { value: 5, text: '5%' }, { value: 6, text: '6%' }, { value: 7, text: '7%' }, { value: 8, text: '8%' }, { value: 9, text: '9%' }, { value: 10, text: '10%' }, { value: 11, text: '11%' }, { value: 12, text: '12%' }, { value: 13, text: '13%' }, { value: 14, text: '14%' }, { value: 15, text: '15%' }, { value: 16, text: '16%' }, { value: 17, text: '17%' }, { value: 18, text: '18%' }, { value: 19, text: '19%' }, { value: 20, text: '20%' }, { value: 30, text: '30%' }, { value: 40, text: '40%' }, { value: 50, text: '50%' }, { value: 60, text: '60%' }, { value: 70, text: '70%' }, { value: 80, text: '80%' }, { value: 90, text: '90%' }, { value: 100, text: '100%' }, { value: 150, text: '150%' }, { value: 200, text: '200%' }, { value: 250, text: '250%' }, { value: 300, text: '300%' }],
+      numberSlotsOptions: [{ value: 1, text: '1 slot' }, { value: 2, text: '2 slots' }, { value: 3, text: '3 slots' }, { value: 4, text: '4 slots' }, { value: 5, text: '5 slots' }, { value: 6, text: '6 slots' }, { value: 7, text: '7 slots' }, { value: 8, text: '8 slots' }, { value: 9, text: '9 slots' }, { value: 10, text: '10 slots' }],
     };
   },
   methods: {
@@ -198,6 +207,7 @@ export default {
       });
     },
     reset(curStreamList) {
+      this.filterSlots();
       // console.log('streamList', this.streamList);
       // console.log('curStreamList', curStreamList);
 
@@ -233,7 +243,7 @@ export default {
 
         if (pairOfCoinsWithHyphen.length >= 5 && buyPrice > 0) {
           item.status = 'open';
-          item.pairOfCoins = pairOfCoinsWithHyphen.replace(/\s*/g, '').replace('-', '');
+          item.pairOfCoins = pairOfCoinsWithHyphen.replace(/\s*/g, '').replace('-', '').toLowerCase();
           item.buyPrice = buyPrice;
           item.sellPrice = sellPrice;
           item.amount = amount;
@@ -276,6 +286,8 @@ export default {
     },
     clearSlots() {
       localStorage.setItem('slots', '');
+      this.initSlots();
+      this.updateSlots();
     },
     initSlots() {
       let hasLocalSlots = false;
@@ -283,9 +295,11 @@ export default {
       try {
         let localSlots = localStorage.getItem('slots');
         localSlots = JSON.parse(localSlots);
-        if (localSlots.length) {
+        const slotsLength = localSlots.length;
+        if (slotsLength) {
           hasLocalSlots = true;
           this.slots = localSlots;
+          this.numberSlots = slotsLength;
         }
       } catch (e) {
         this.error = e;
@@ -293,7 +307,7 @@ export default {
 
       if (hasLocalSlots) return;
 
-      this.slots = [...new Array(this.numberPair)].map((x, index) => {
+      this.slots = [...new Array(this.numberSlots)].map((x, index) => {
         const item = {
           id: index,
           status: 'closed',
