@@ -48,7 +48,7 @@
               >
             </div>
             <h6 class="mt-3">Calculate how much profit on your way:</h6>
-            <div class="d-flex aligns-center mt-2 mx-n3">
+            <div class="d-flex mt-2 mx-n3">
               <div class="col-6">
                 <b-form-input
                   v-model="slots[index].sellPrice"
@@ -61,7 +61,7 @@
                 <b-badge variant="info">%Profit</b-badge>
               </div>
             </div>
-            <div class="d-flex aligns-center mt-2 mx-n3">
+            <div class="d-flex mt-2 mx-n3">
               <div class="col-6">
                 <b-form-select
                   v-model="slots[index].selectedProfitInPercent"
@@ -73,17 +73,22 @@
                 <b-badge variant="info">Sell price</b-badge>
               </div>
             </div>
-            <div class="d-flex justify-content-between">
-              <b-button class="mt-4" variant="success" @click="show()">
-                Show
-              </b-button>
-              <b-button
-                class="mt-4"
-                variant="info"
-                @click="sendReport(index)"
-              >
-                @Send
-              </b-button>
+            <div class="mt-4 d-flex justify-content-between">
+              <b-button variant="success" @click="show()"> Show </b-button>
+              <div class="position-relative">
+                <b-overlay
+                  :show="isLoadingApp"
+                  rounded
+                  opacity="0.6"
+                  spinner-small
+                  spinner-variant="primary"
+                  class="d-flex"
+                >
+                  <b-button variant="info" @click="sendReport(index)">
+                    @Send
+                  </b-button>
+                </b-overlay>
+              </div>
             </div>
           </b-card-text>
         </b-card>
@@ -106,7 +111,7 @@ export default {
       detailStream: '@trade',
       streamList: [],
       numberPair: 2,
-      profitOptions: [{ value: 0.2, text: '0.2%' }, { value: 0.3, text: '0.3%' }, { value: 0.4, text: '0.4%' }, { value: 0.5, text: '0.5%' }, { value: 1, text: '1%' }, { value: 2, text: '2%' }, { value: 3, text: '3%' }, { value: 4, text: '4%' }, { value: 5, text: '5%' }, { value: 6, text: '6%' }, { value: 7, text: '7%' }, { value: 8, text: '8%' }, { value: 9, text: '9%' }, { value: 10, text: '10%' }, { value: 11, text: '11%' }, { value: 12, text: '12%' }, { value: 13, text: '13%' }, { value: 14, text: '14%' }, { value: 15, text: '15%' }, { value: 16, text: '16%' }, { value: 17, text: '17%' }, { value: 18, text: '18%' }, { value: 19, text: '19%' }, { value: 20, text: '20%' }, { value: 50, text: '50%' }, { value: 100, text: '100%' }],
+      profitOptions: [{ value: 0.2, text: '0.2%' }, { value: 0.3, text: '0.3%' }, { value: 0.4, text: '0.4%' }, { value: 0.5, text: '0.5%' }, { value: 1, text: '1%' }, { value: 2, text: '2%' }, { value: 3, text: '3%' }, { value: 4, text: '4%' }, { value: 5, text: '5%' }, { value: 6, text: '6%' }, { value: 7, text: '7%' }, { value: 8, text: '8%' }, { value: 9, text: '9%' }, { value: 10, text: '10%' }, { value: 11, text: '11%' }, { value: 12, text: '12%' }, { value: 13, text: '13%' }, { value: 14, text: '14%' }, { value: 15, text: '15%' }, { value: 16, text: '16%' }, { value: 17, text: '17%' }, { value: 18, text: '18%' }, { value: 19, text: '19%' }, { value: 20, text: '20%' }, { value: 30, text: '30%' }, { value: 40, text: '40%' }, { value: 50, text: '50%' }, { value: 60, text: '60%' }, { value: 70, text: '70%' }, { value: 80, text: '80%' }, { value: 90, text: '90%' }, { value: 100, text: '100%' }, { value: 150, text: '150%' }, { value: 200, text: '200%' }, { value: 250, text: '250%' }, { value: 300, text: '300%' }],
     };
   },
   methods: {
@@ -246,23 +251,24 @@ export default {
     },
     async sendReport(index) {
       const element = this.getCardElement(index);
-      console.log('element', element);
+      // console.log('element', element);
       try {
         const canvas = await html2canvas(element);
-        document.body.append(canvas);
+        // document.body.append(canvas);
         canvas.toBlob(async (blob) => {
           const formData = new FormData();
           // @TestBot group
-          formData.append('chat_id', -471634458);
+          // formData.append('chat_id', -471634458);
           // @GForces - Cryptocurrency group
-          // formData.append('chat_id', -1001482443540);
+          formData.append('chat_id', -1001482443540);
           formData.append('photo', blob);
+
           await this.sendPhoto(formData);
         }, 'image/jpeg', 0.6);
       } catch (e) {
         console.log('render error', e);
       }
-      console.log('sent!');
+      // console.log('sent!');
     },
   },
   created() {

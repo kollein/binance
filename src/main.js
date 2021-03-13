@@ -54,6 +54,7 @@ Vue.mixin({
   },
   computed: {
     ...mapState('app', [
+      'isLoadingApp',
       'homeUrl',
       'statis',
       'statisCounter',
