@@ -1,6 +1,10 @@
 <template>
   <div class="about">
-    <h1 class="text-center">Realtime price:</h1>
+    <div class="text-center">
+      <h1>Realtime price:</h1>
+      <b-button variant="success" @click="clearSlots()">Clear</b-button>
+    </div>
+
     <div class="d-flex flex-wrap">
       <div
         class="col-md-4 col-sm-6 col-12 mt-4"
@@ -110,7 +114,7 @@ export default {
       isEntering: false,
       detailStream: '@trade',
       streamList: [],
-      numberPair: 2,
+      numberPair: 6,
       profitOptions: [{ value: 0.2, text: '0.2%' }, { value: 0.3, text: '0.3%' }, { value: 0.4, text: '0.4%' }, { value: 0.5, text: '0.5%' }, { value: 1, text: '1%' }, { value: 2, text: '2%' }, { value: 3, text: '3%' }, { value: 4, text: '4%' }, { value: 5, text: '5%' }, { value: 6, text: '6%' }, { value: 7, text: '7%' }, { value: 8, text: '8%' }, { value: 9, text: '9%' }, { value: 10, text: '10%' }, { value: 11, text: '11%' }, { value: 12, text: '12%' }, { value: 13, text: '13%' }, { value: 14, text: '14%' }, { value: 15, text: '15%' }, { value: 16, text: '16%' }, { value: 17, text: '17%' }, { value: 18, text: '18%' }, { value: 19, text: '19%' }, { value: 20, text: '20%' }, { value: 30, text: '30%' }, { value: 40, text: '40%' }, { value: 50, text: '50%' }, { value: 60, text: '60%' }, { value: 70, text: '70%' }, { value: 80, text: '80%' }, { value: 90, text: '90%' }, { value: 100, text: '100%' }, { value: 150, text: '150%' }, { value: 200, text: '200%' }, { value: 250, text: '250%' }, { value: 300, text: '300%' }],
     };
   },
@@ -269,6 +273,9 @@ export default {
         console.log('render error', e);
       }
       // console.log('sent!');
+    },
+    clearSlots() {
+      localStorage.setItem('slots', '');
     },
   },
   created() {
