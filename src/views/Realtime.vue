@@ -15,7 +15,7 @@
           <b-card-text>
             <b-form-input
               v-model="slots[index].pairOfCoinsWithHyphen"
-              placeholder="Enter your pair of coins: btcusdt"
+              placeholder="Enter your pair of coins: btc-usdt"
               spellcheck="false"
             ></b-form-input>
             <b-form-input
