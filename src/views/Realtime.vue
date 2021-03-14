@@ -26,15 +26,20 @@
       >
         <b-card :ref="`card${index}`">
           <template #header>
-            <div class="text-uppercase">
-              <span>{{ item.pairOfCoinsWithHyphen }}</span>
-              <b-badge
-                :class="[
-                  item.status === 'open' ? 'badge-success' : 'badge-dark',
-                ]"
-                class="ml-1"
-                >{{ item.status }}</b-badge
-              >
+            <div class="d-flex justify-content-between">
+              <div class="text-uppercase">
+                <span>{{ item.pairOfCoinsWithHyphen }}</span>
+                <b-badge
+                  :class="[
+                    item.status === 'open' ? 'badge-success' : 'badge-dark',
+                  ]"
+                  class="ml-1"
+                  >{{ item.status }}</b-badge
+                >
+              </div>
+              <b-button size="sm" @click="moveSlot(index)"
+                >Move <b-icon icon="arrow-up" aria-hidden="true"></b-icon
+              ></b-button>
             </div>
           </template>
           <b-card-text>
@@ -434,6 +439,13 @@ ${sparkles}Profit: ${card.selectedProfitInPercent}% ${leftRightArrow} ${this.$op
       const localSlots = this.getLocalSlots();
       const slots = this.createEmptySlots(this.numberSlots);
       this.slots = [...localSlots, ...slots].slice(0, this.numberSlots);
+      this.updateSlots();
+    },
+    moveSlot(index) {
+      const slots = [...this.slots];
+      const selectedGroup = slots.splice(index, 1);
+      const mixedSlots = [...selectedGroup, ...slots];
+      this.slots = mixedSlots;
       this.updateSlots();
     },
   },
