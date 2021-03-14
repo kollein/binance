@@ -313,9 +313,9 @@ ${sparkles}Profit: ${card.selectedProfitInPercent}% - ${this.$options.filters.cu
       try {
         const formData = new FormData();
         // @TestBot group
-        formData.append('chat_id', -471634458);
+        // formData.append('chat_id', -471634458);
         // @GForces - Cryptocurrency group
-        // formData.append('chat_id', -1001482443540);
+        formData.append('chat_id', -1001482443540);
         formData.append('text', markdownV2Content);
         formData.append('parse_mode', 'MarkdownV2');
 
