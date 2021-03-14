@@ -23,8 +23,10 @@
       >
         <b-card :ref="`card${index}`">
           <template #header>
-            <span class="text-uppercase">{{ item.pairOfCoinsWithHyphen }}</span>
-            <b-badge variant="info" class="ml-1">{{ item.status }}</b-badge>
+            <div class="text-uppercase">
+              <span>{{ item.pairOfCoinsWithHyphen }}</span>
+              <b-badge variant="info" class="ml-1">{{ item.status }}</b-badge>
+            </div>
           </template>
           <b-card-text>
             <b-form-input
@@ -61,7 +63,7 @@
               >
             </div>
             <h6 class="mt-3">Calculate how much profit on your way:</h6>
-            <div class="d-flex mt-2 mx-n3">
+            <div class="row mt-2">
               <div class="col-6">
                 <b-form-input
                   v-model="slots[index].sellPrice"
@@ -74,7 +76,7 @@
                 <b-badge variant="info">%Profit</b-badge>
               </div>
             </div>
-            <div class="d-flex mt-2 mx-n3">
+            <div class="row mt-2">
               <div class="col-6">
                 <b-form-select
                   v-model="slots[index].selectedProfitInPercent"
@@ -385,7 +387,7 @@ ${sparkles}Profit: ${card.selectedProfitInPercent}% ${leftRightArrow} ${this.$op
         const item = {
           id: index,
           status: 'closed',
-          curPrice: 0,
+          curPrice: '',
           buyPrice: '',
           pairOfCoinsWithHyphen: '',
           amount: '',
