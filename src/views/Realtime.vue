@@ -9,7 +9,10 @@
             :options="numberSlotsOptions"
           ></b-form-select>
         </div>
-        <b-button class="ml-2" variant="success" @click="clearSlots()"
+        <b-button class="ml-2" variant="success" @click="setSlots()"
+          >Reset</b-button
+        >
+        <b-button class="ml-2" variant="danger" @click="clearSlots()"
           >Clear</b-button
         >
       </div>
@@ -25,7 +28,13 @@
           <template #header>
             <div class="text-uppercase">
               <span>{{ item.pairOfCoinsWithHyphen }}</span>
-              <b-badge variant="info" class="ml-1">{{ item.status }}</b-badge>
+              <b-badge
+                :class="[
+                  item.status === 'open' ? 'badge-success' : 'badge-dark',
+                ]"
+                class="ml-1"
+                >{{ item.status }}</b-badge
+              >
             </div>
           </template>
           <b-card-text>
@@ -363,27 +372,30 @@ ${sparkles}Profit: ${card.selectedProfitInPercent}% ${leftRightArrow} ${this.$op
       this.initSlots();
       this.updateSlots();
     },
-    initSlots() {
-      let hasLocalSlots = false;
-
+    getLocalSlots() {
+      let localSlots = [];
       try {
-        // eslint-disable-next-line max-len
-        // [{"id":0,"status":"open","buyPrice":0.03189,"pairOfCoinsWithHyphen":"gto-usdt","amount":757351,"sellPrice":0.1,"selectedProfitInPercent":100,"pairOfCoins":"gtousdt","profitInPercent":"5.83","curPrice":"0.03375000","isWin":true,"isGood":true,"isExcellent":false,"PNL":0.1859187,"willingProfitInPercent":"213.58","willingSellPrice":0.06378},{"id":1,"status":"open","buyPrice":1700,"pairOfCoinsWithHyphen":"eth-usdt","amount":100,"sellPrice":3000,"selectedProfitInPercent":50,"pairOfCoins":"ethusdt","profitInPercent":"10.78","curPrice":"1883.21000000","isWin":true,"isGood":false,"isExcellent":true,"PNL":18326,"willingProfitInPercent":"76.47","willingSellPrice":2550}]
-        let localSlots = localStorage.getItem('slots');
+        localSlots = localStorage.getItem('slots');
         localSlots = JSON.parse(localSlots);
-        const slotsLength = localSlots.length;
-        if (slotsLength) {
-          hasLocalSlots = true;
-          this.slots = localSlots;
-          this.numberSlots = slotsLength;
-        }
       } catch (e) {
         this.error = e;
       }
 
-      if (hasLocalSlots) return;
+      return localSlots || [];
+    },
+    initSlots() {
+      const localSlots = this.getLocalSlots();
+      const slotsLength = localSlots.length;
+      if (slotsLength) {
+        this.slots = localSlots;
+        this.numberSlots = slotsLength;
+        return;
+      }
 
-      this.slots = [...new Array(this.numberSlots)].map((x, index) => {
+      this.slots = this.createEmptySlots(this.numberSlots);
+    },
+    createEmptySlots(amount) {
+      return [...new Array(amount)].map((x, index) => {
         const item = {
           id: index,
           status: 'closed',
@@ -405,6 +417,12 @@ ${sparkles}Profit: ${card.selectedProfitInPercent}% ${leftRightArrow} ${this.$op
         id: 3,
       };
       this.wss.send(JSON.stringify(paramList));
+    },
+    setSlots() {
+      const localSlots = this.getLocalSlots();
+      const slots = this.createEmptySlots(this.numberSlots);
+      this.slots = [...localSlots, ...slots].slice(0, this.numberSlots);
+      this.updateSlots();
     },
   },
   created() {
