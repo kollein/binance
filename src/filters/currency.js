@@ -14,5 +14,5 @@ export default (number, options) => {
     currency: opt.currency,
     minimumFractionDigits: opt.minimumFractionDigits,
     maximumFractionDigits: opt.maximumFractionDigits,
-  }).replace(/^\D+/g, '').trim();
+  }).replace(/[^0-9-.,]+/g, '').trim();
 };
