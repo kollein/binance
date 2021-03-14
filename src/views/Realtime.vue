@@ -108,6 +108,15 @@
         </b-card>
       </div>
     </div>
+    <b-alert
+      v-model="showTopAlert"
+      class="position-fixed fixed-top m-0 rounded-0"
+      style="z-index: 2000"
+      variant="success"
+      dismissible
+    >
+      {{ error }}
+    </b-alert>
   </div>
 </template>
 
@@ -120,6 +129,7 @@ export default {
   data() {
     return {
       error: null,
+      showTopAlert: false,
       wss: null,
       slots: [],
       isEntering: false,
@@ -312,18 +322,15 @@ ${sparkles}Profit: ${card.selectedProfitInPercent}% - ${this.$options.filters.cu
 
       try {
         const formData = new FormData();
-        // @TestBot group
-        // formData.append('chat_id', -471634458);
-        // @GForces - Cryptocurrency group
-        formData.append('chat_id', -1001482443540);
+        formData.append('chat_id', process.env.VUE_APP_TELEGRAM_CHAT_GROUP_IDX);
         formData.append('text', markdownV2Content);
         formData.append('parse_mode', 'MarkdownV2');
 
         await this.sendMessage(formData);
       } catch (e) {
-        console.log('render error', e);
+        this.error = e.message;
+        this.showTopAlert = true;
       }
-      // console.log('sent!');
     },
     clearSlots() {
       localStorage.setItem('slots', '');

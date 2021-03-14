@@ -4,7 +4,7 @@ export default (number, options) => {
     currency: 'USD',
     lang: 'en-US',
     minimumFractionDigits: 0,
-    maximumFractionDigits: 2,
+    maximumFractionDigits: 9,
   };
 
   const opt = { ...config, ...options };
