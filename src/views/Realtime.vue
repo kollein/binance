@@ -9,7 +9,9 @@
             :options="numberSlotsOptions"
           ></b-form-select>
         </div>
-        <b-button class="ml-2" variant="success" @click="clearSlots()">Clear</b-button>
+        <b-button class="ml-2" variant="success" @click="clearSlots()"
+          >Clear</b-button
+        >
       </div>
     </div>
 
@@ -110,7 +112,8 @@
 </template>
 
 <script>
-import html2canvas from 'html2canvas';
+import * as moment from 'moment/moment';
+// import html2canvas from 'html2canvas';
 
 export default {
   name: 'Realtime',
@@ -263,22 +266,60 @@ export default {
       const cardEle = Array.isArray(element) ? element[0] : element;
       return cardEle;
     },
-    async sendReport(index) {
-      const element = this.getCardElement(index);
-      // console.log('element', element);
-      try {
-        const canvas = await html2canvas(element);
-        // document.body.append(canvas);
-        canvas.toBlob(async (blob) => {
-          const formData = new FormData();
-          // @TestBot group
-          // formData.append('chat_id', -471634458);
-          // @GForces - Cryptocurrency group
-          formData.append('chat_id', -1001482443540);
-          formData.append('photo', blob);
+    // async sendImageReport(index) {
+    //   const element = this.getCardElement(index);
+    //   // console.log('element', element);
+    //   try {
+    //     const canvas = await html2canvas(element);
+    //     // document.body.append(canvas);
+    //     canvas.toBlob(async (blob) => {
+    //       const formData = new FormData();
+    //       // @TestBot group
+    //       // formData.append('chat_id', -471634458);
+    //       // @GForces - Cryptocurrency group
+    //       formData.append('chat_id', -1001482443540);
+    //       formData.append('photo', blob);
 
-          await this.sendPhoto(formData);
-        }, 'image/jpeg', 0.6);
+    //       await this.sendPhoto(formData);
+    //     }, 'image/jpeg', 0.6);
+    //   } catch (e) {
+    //     console.log('render error', e);
+    //   }
+    //   // console.log('sent!');
+    // },
+    async sendReport(index) {
+      const card = this.slots[index];
+      const today = moment().format('dddd, MMMM Do YYYY, HH:mm:ss');
+      let markdownV2Content = '```';
+      const sparkles = '✨';
+      const rocket = '🚀';
+      const bath = '🛀';
+      const dollarSign = '💵';
+      markdownV2Content += `
+${card.pairOfCoinsWithHyphen.toUpperCase()}: ${today}
+${sparkles}Buy price: ${this.$options.filters.currency(card.buyPrice)}
+${sparkles}Amount: ${this.$options.filters.currency(card.amount)}
+${sparkles}Current Price: ${this.$options.filters.currency(card.curPrice)}
+${sparkles}Profit: ${card.profitInPercent}% ${card.isWin ? rocket : bath}
+${sparkles}PNL: ${this.$options.filters.currency(card.PNL)} ${card.isWin ? dollarSign : bath}
+
+Calculate how much profit on your way:
+${sparkles}Sell price: ${this.$options.filters.currency(card.sellPrice)} - ${card.willingProfitInPercent}%
+${sparkles}Profit: ${card.selectedProfitInPercent}% - ${this.$options.filters.currency(card.willingSellPrice)}
+`;
+      markdownV2Content += '```';
+      markdownV2Content += '[See more](https://binance2021.web.app/)';
+
+      try {
+        const formData = new FormData();
+        // @TestBot group
+        formData.append('chat_id', -471634458);
+        // @GForces - Cryptocurrency group
+        // formData.append('chat_id', -1001482443540);
+        formData.append('text', markdownV2Content);
+        formData.append('parse_mode', 'MarkdownV2');
+
+        await this.sendMessage(formData);
       } catch (e) {
         console.log('render error', e);
       }
@@ -293,6 +334,8 @@ export default {
       let hasLocalSlots = false;
 
       try {
+        // eslint-disable-next-line max-len
+        // [{"id":0,"status":"open","buyPrice":0.03189,"pairOfCoinsWithHyphen":"gto-usdt","amount":757351,"sellPrice":0.1,"selectedProfitInPercent":100,"pairOfCoins":"gtousdt","profitInPercent":"5.83","curPrice":"0.03375000","isWin":true,"isGood":true,"isExcellent":false,"PNL":0.1859187,"willingProfitInPercent":"213.58","willingSellPrice":0.06378},{"id":1,"status":"open","buyPrice":1700,"pairOfCoinsWithHyphen":"eth-usdt","amount":100,"sellPrice":3000,"selectedProfitInPercent":50,"pairOfCoins":"ethusdt","profitInPercent":"10.78","curPrice":"1883.21000000","isWin":true,"isGood":false,"isExcellent":true,"PNL":18326,"willingProfitInPercent":"76.47","willingSellPrice":2550}]
         let localSlots = localStorage.getItem('slots');
         localSlots = JSON.parse(localSlots);
         const slotsLength = localSlots.length;

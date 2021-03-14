@@ -1,8 +1,8 @@
 export default (number, options) => {
   const config = {
     style: 'currency',
-    currency: 'EUR',
-    lang: 'nl-NL',
+    currency: 'USD',
+    lang: 'en-US',
     minimumFractionDigits: 0,
     maximumFractionDigits: 2,
   };

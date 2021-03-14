@@ -50,6 +50,7 @@ Vue.mixin({
       'updateRounds',
       'updateStorageItem',
       'sendPhoto',
+      'sendMessage',
     ]),
   },
   computed: {
