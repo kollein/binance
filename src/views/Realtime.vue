@@ -142,16 +142,22 @@ export default {
   },
   methods: {
     connect() {
+      console.log('WebSocket is connected!');
       this.filterSlots();
       // init
       const streamListStr = this.streamList.join('/');
-      this.wss = new WebSocket(`wss://stream.binance.com:9443/stream?streams=${streamListStr}`);
-      // console.log(this.wss);
+      try {
+        this.wss = new WebSocket(`wss://stream.binance.com:9443/stream?streams=${streamListStr}`);
+        // console.log(this.wss);
+      } catch (e) {
+        console.log('Init WebSocket error:', e.message);
+        return;
+      }
 
-      this.wss.onmessage = (evt) => {
-        // console.log('onmessage', evt);
+      this.wss.onmessage = (event) => {
+        // console.log('onmessage', event);
         try {
-          const data = JSON.parse(evt.data);
+          const data = JSON.parse(event.data);
 
           // on result
           if (data.id) {
@@ -163,12 +169,17 @@ export default {
             this.onStream(data);
           }
         } catch (e) {
-          // console.log('Unknown message: ', evt.data, e);
+          // console.log('Unknown message: ', event.data, e);
         }
       };
 
+      this.wss.onerror = (event) => {
+        console.error('WebSocket error observed:', event);
+        this.connect();
+      };
+
       this.wss.onclose = () => {
-        console.log('WebSocket is closed now. Re-conmnect!');
+        console.log('WebSocket is closed now!');
         this.connect();
       };
     },
