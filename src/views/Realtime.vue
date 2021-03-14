@@ -321,8 +321,9 @@ ${sparkles}Profit: ${card.selectedProfitInPercent}% - ${this.$options.filters.cu
       markdownV2Content += '[See more](https://binance2021.web.app/)';
 
       try {
+        console.log('VUE_APP_TELEGRAM_CHAT_GROUP_ID', process.env.VUE_APP_TELEGRAM_CHAT_GROUP_ID);
         const formData = new FormData();
-        formData.append('chat_id', process.env.VUE_APP_TELEGRAM_CHAT_GROUP_IDX);
+        formData.append('chat_id', process.env.VUE_APP_TELEGRAM_CHAT_GROUP_ID);
         formData.append('text', markdownV2Content);
         formData.append('parse_mode', 'MarkdownV2');
 
