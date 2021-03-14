@@ -56,6 +56,10 @@
               class="mt-2"
             ></b-form-input>
             <div class="mt-2">
+              <span>{{ item.asset | currency }}</span>
+              <b-badge variant="info">Asset</b-badge>
+            </div>
+            <div class="mt-2">
               <span>{{ item.curPrice | currency }}</span>
               <b-badge variant="info">Current price</b-badge>
             </div>
@@ -70,6 +74,10 @@
               <b-badge :class="[item.isWin ? 'badge-success' : 'badge-danger']"
                 >PNL</b-badge
               >
+            </div>
+            <div class="mt-2">
+              <span>{{ item.ROI | currency }}</span>
+              <b-badge variant="info">ROI</b-badge>
             </div>
             <h6 class="mt-3">Calculate how much profit on your way:</h6>
             <div class="row mt-2">
@@ -240,6 +248,7 @@ export default {
       item.isExcellent = item.profitInPercent > 10;
       const PNL = ((item.amount * item.buyPrice) * item.profitInPercent) / 100;
       item.PNL = PNL;
+      item.ROI = item.asset + item.PNL;
       const willingProfitInPercent = this.getProfitInPercent(item.buyPrice, item.sellPrice);
       item.willingProfitInPercent = willingProfitInPercent.toFixed(2);
       const willingSellPrice = this
@@ -288,6 +297,7 @@ export default {
           item.buyPrice = buyPrice;
           item.sellPrice = sellPrice;
           item.amount = amount;
+          item.asset = amount * buyPrice;
           const calculatedItem = this.getCalculatedItem(item);
           item = { ...item, ...calculatedItem };
         }
@@ -355,9 +365,11 @@ export default {
 ${card.pairOfCoinsWithHyphen.toUpperCase()}: ${today}
 ${sparkles}Buy price: ${this.$options.filters.currency(card.buyPrice)}
 ${sparkles}Amount: ${this.$options.filters.currency(card.amount)}
-${sparkles}Current Price: ${this.$options.filters.currency(card.curPrice)}
+${sparkles}Asset: ${this.$options.filters.currency(card.asset)}
+${sparkles}Current price: ${this.$options.filters.currency(card.curPrice)}
 ${sparkles}Profit: ${card.profitInPercent}% ${card.isWin ? rocket : bath}
 ${sparkles}PNL: ${this.$options.filters.currency(card.PNL)} ${card.isWin ? dollarSign : bath}
+${sparkles}ROI: ${this.$options.filters.currency(card.ROI)}
 
 Calculate how much profit on your way:
 ${sparkles}Sell price: ${this.$options.filters.currency(card.sellPrice)} ${leftRightArrow} ${card.willingProfitInPercent}%
