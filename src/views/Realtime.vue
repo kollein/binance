@@ -156,7 +156,6 @@ export default {
       showTopAlert: false,
       wss: null,
       slots: [],
-      isEntering: false,
       detailStream: '@trade',
       streamList: [],
       numberSlots: 2,
@@ -283,10 +282,6 @@ export default {
       this.wss.send(JSON.stringify(paramSubscribe));
     },
     updateSlots() {
-      // console.log('updateSlots');
-      // avoid infinite watcher looping
-      this.isEntering = false;
-
       this.slots = this.slots.map((x) => {
         let item = { ...x };
         let { buyPrice, amount, sellPrice } = x;
