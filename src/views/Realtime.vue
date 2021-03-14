@@ -1,5 +1,5 @@
 <template>
-  <div class="about">
+  <div class="realtime-page">
     <div class="text-center">
       <h1>Realtime price:</h1>
       <div class="d-flex justify-content-center">
@@ -45,7 +45,7 @@
               class="mt-2"
             ></b-form-input>
             <div class="mt-2">
-              <span>{{ item.curPrice }}</span>
+              <span>{{ item.curPrice | currency }}</span>
               <b-badge variant="info">Current price</b-badge>
             </div>
             <div class="mt-2">
@@ -55,7 +55,7 @@
               >
             </div>
             <div class="mt-2">
-              <span>{{ item.PNL }}</span>
+              <span>{{ item.PNL | currency }}</span>
               <b-badge :class="[item.isWin ? 'badge-success' : 'badge-danger']"
                 >PNL</b-badge
               >
@@ -82,7 +82,7 @@
                 ></b-form-select>
               </div>
               <div class="col-6">
-                <span>{{ item.willingSellPrice }}</span>
+                <span>{{ item.willingSellPrice | currency }}</span>
                 <b-badge variant="info">Sell price</b-badge>
               </div>
             </div>
@@ -198,26 +198,32 @@ export default {
       const curPrice = data.p;
       // console.log('onStream', stream, data);
       this.slots = this.slots.map((x) => {
-        const item = { ...x };
-        const { status, buyPrice } = x;
+        let item = { ...x };
+        const { status } = x;
         const pairOfCoinsFilled = `${x.pairOfCoins}${this.detailStream}`;
         if (pairOfCoinsFilled === stream && status === 'open') {
-          const profitInPercent = this.getProfitInPercent(buyPrice, curPrice);
-          item.profitInPercent = profitInPercent.toFixed(2);
           item.curPrice = curPrice;
-          item.isWin = item.profitInPercent > 0;
-          item.isGood = item.profitInPercent > 0 && item.profitInPercent < 10;
-          item.isExcellent = item.profitInPercent > 10;
-          const PNL = ((item.amount * item.buyPrice) * item.profitInPercent) / 100;
-          item.PNL = PNL;
-          const willingProfitInPercent = this.getProfitInPercent(buyPrice, item.sellPrice);
-          item.willingProfitInPercent = willingProfitInPercent.toFixed(2);
-          const willingSellPrice = this
-            .getStopProfitAtPrice(buyPrice, item.selectedProfitInPercent);
-          item.willingSellPrice = willingSellPrice;
+          const calculatedItem = this.getCalculatedItem(item);
+          item = { ...item, ...calculatedItem };
         }
         return item;
       });
+    },
+    getCalculatedItem(rawItem) {
+      const item = { ...rawItem };
+      const profitInPercent = this.getProfitInPercent(item.buyPrice, item.curPrice);
+      item.profitInPercent = profitInPercent.toFixed(2);
+      item.isWin = item.profitInPercent > 0;
+      item.isGood = item.profitInPercent > 0 && item.profitInPercent < 10;
+      item.isExcellent = item.profitInPercent > 10;
+      const PNL = ((item.amount * item.buyPrice) * item.profitInPercent) / 100;
+      item.PNL = PNL;
+      const willingProfitInPercent = this.getProfitInPercent(item.buyPrice, item.sellPrice);
+      item.willingProfitInPercent = willingProfitInPercent.toFixed(2);
+      const willingSellPrice = this
+        .getStopProfitAtPrice(item.buyPrice, item.selectedProfitInPercent);
+      item.willingSellPrice = willingSellPrice;
+      return item;
     },
     reset(curStreamList) {
       this.filterSlots();
@@ -246,7 +252,7 @@ export default {
       this.isEntering = false;
 
       this.slots = this.slots.map((x) => {
-        const item = { ...x };
+        let item = { ...x };
         let { buyPrice, amount, sellPrice } = x;
         buyPrice = parseFloat(buyPrice);
         sellPrice = parseFloat(sellPrice);
@@ -260,6 +266,8 @@ export default {
           item.buyPrice = buyPrice;
           item.sellPrice = sellPrice;
           item.amount = amount;
+          const calculatedItem = this.getCalculatedItem(item);
+          item = { ...item, ...calculatedItem };
         }
         return item;
       });
@@ -298,30 +306,8 @@ export default {
     //   // console.log('sent!');
     // },
     async sendReport(index) {
-      const card = this.slots[index];
-      const today = moment().format('dddd, MMMM Do YYYY, HH:mm:ss');
-      let markdownV2Content = '```';
-      const sparkles = '✨';
-      const rocket = '🚀';
-      const bath = '🛀';
-      const dollarSign = '💵';
-      markdownV2Content += `
-${card.pairOfCoinsWithHyphen.toUpperCase()}: ${today}
-${sparkles}Buy price: ${this.$options.filters.currency(card.buyPrice)}
-${sparkles}Amount: ${this.$options.filters.currency(card.amount)}
-${sparkles}Current Price: ${this.$options.filters.currency(card.curPrice)}
-${sparkles}Profit: ${card.profitInPercent}% ${card.isWin ? rocket : bath}
-${sparkles}PNL: ${this.$options.filters.currency(card.PNL)} ${card.isWin ? dollarSign : bath}
-
-Calculate how much profit on your way:
-${sparkles}Sell price: ${this.$options.filters.currency(card.sellPrice)} - ${card.willingProfitInPercent}%
-${sparkles}Profit: ${card.selectedProfitInPercent}% - ${this.$options.filters.currency(card.willingSellPrice)}
-`;
-      markdownV2Content += '```';
-      markdownV2Content += '[See more](https://binance2021.web.app/)';
-
       try {
-        console.log('VUE_APP_TELEGRAM_CHAT_GROUP_ID', process.env.VUE_APP_TELEGRAM_CHAT_GROUP_ID);
+        const markdownV2Content = this.getMarkdownContent(index);
         const formData = new FormData();
         formData.append('chat_id', process.env.VUE_APP_TELEGRAM_CHAT_GROUP_ID);
         formData.append('text', markdownV2Content);
@@ -332,6 +318,32 @@ ${sparkles}Profit: ${card.selectedProfitInPercent}% - ${this.$options.filters.cu
         this.error = e.message;
         this.showTopAlert = true;
       }
+    },
+    getMarkdownContent(index) {
+      const card = this.slots[index];
+      const today = moment().format('dddd, MMMM Do YYYY, HH:mm:ss');
+      let markdownV2Content = '```';
+      // https://apps.timwhitlock.info/emoji/tables/unicode#block-1-emoticons
+      const sparkles = '✨';
+      const rocket = '🚀';
+      const bath = '🛀';
+      const dollarSign = '💵';
+      const leftRightArrow = '↔';
+      markdownV2Content += `
+${card.pairOfCoinsWithHyphen.toUpperCase()}: ${today}
+${sparkles}Buy price: ${this.$options.filters.currency(card.buyPrice)}
+${sparkles}Amount: ${this.$options.filters.currency(card.amount)}
+${sparkles}Current Price: ${this.$options.filters.currency(card.curPrice)}
+${sparkles}Profit: ${card.profitInPercent}% ${card.isWin ? rocket : bath}
+${sparkles}PNL: ${this.$options.filters.currency(card.PNL)} ${card.isWin ? dollarSign : bath}
+
+Calculate how much profit on your way:
+${sparkles}Sell price: ${this.$options.filters.currency(card.sellPrice)} ${leftRightArrow} ${card.willingProfitInPercent}%
+${sparkles}Profit: ${card.selectedProfitInPercent}% ${leftRightArrow} ${this.$options.filters.currency(card.willingSellPrice)}
+`;
+      markdownV2Content += '```';
+      markdownV2Content += '[See more](https://binance2021.web.app/)';
+      return markdownV2Content;
     },
     clearSlots() {
       localStorage.setItem('slots', '');
@@ -362,6 +374,7 @@ ${sparkles}Profit: ${card.selectedProfitInPercent}% - ${this.$options.filters.cu
         const item = {
           id: index,
           status: 'closed',
+          curPrice: 0,
           buyPrice: '',
           pairOfCoinsWithHyphen: '',
           amount: '',

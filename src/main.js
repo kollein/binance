@@ -44,11 +44,6 @@ Vue.mixin({
       'setByProp',
     ]),
     ...mapActions('app', [
-      'updateLastUrl',
-      'addStackUrl',
-      'updateInterval',
-      'updateRounds',
-      'updateStorageItem',
       'sendPhoto',
       'sendMessage',
     ]),
@@ -56,19 +51,8 @@ Vue.mixin({
   computed: {
     ...mapState('app', [
       'isLoadingApp',
-      'homeUrl',
-      'statis',
-      'statisCounter',
-      'intervalList',
-      'interval',
-      'profitPercent',
-      'startAtHour',
-      'runningRound',
     ]),
     ...mapGetters('app', [
-      'getLastUrlInStorage',
-      'getNextTimestamp',
-      'getStorageItem',
       'getStopProfitAtPrice',
       'getProfitInPercent',
     ]),
