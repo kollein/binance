@@ -14,7 +14,23 @@ export default {
       error: '',
       socket: null,
       isReady: true,
+      isChangeTab: false,
     };
+  },
+  methods: {
+    handleVisibilityChange() {
+      if (document.hidden) {
+        this.isChangeTab = true;
+      } else {
+        if (!this.isChangeTab) return;
+
+        window.location.reload();
+      }
+    },
+  },
+  async created() {
+    // detect if browser tab is unfocus
+    document.addEventListener('visibilitychange', this.handleVisibilityChange, false);
   },
 };
 </script>

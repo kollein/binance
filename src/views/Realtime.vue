@@ -85,7 +85,7 @@
               <b-badge variant="info">ROI</b-badge>
             </div>
             <h6 class="mt-3">Calculate how much profit on your way:</h6>
-            <div class="row mt-2">
+            <div class="row mt-2 d-flex align-items-center">
               <div class="col-6">
                 <b-form-input
                   v-model="slots[index].sellPrice"
@@ -93,21 +93,33 @@
                   spellcheck="false"
                 ></b-form-input>
               </div>
-              <div class="col-6">
-                <span>{{ item.willingProfitInPercent }}</span>
-                <b-badge variant="info">%Profit</b-badge>
+              <div class="col-6 d-flex flex-column">
+                <div>
+                  <span>{{ item.willingProfitInPercent }}</span>
+                  <b-badge variant="info">%Profit</b-badge>
+                </div>
+                <div>
+                  <span>{{ item.assetBaseOnWP | currency }}</span>
+                  <b-badge variant="primary">Asset*</b-badge>
+                </div>
               </div>
             </div>
-            <div class="row mt-2">
+            <div class="row mt-2 d-flex align-items-center">
               <div class="col-6">
                 <b-form-select
                   v-model="slots[index].selectedProfitInPercent"
                   :options="profitOptions"
                 ></b-form-select>
               </div>
-              <div class="col-6">
-                <span>{{ item.willingSellPrice | currency }}</span>
-                <b-badge variant="info">Sell price</b-badge>
+              <div class="col-6 d-flex flex-column">
+                <div>
+                  <span>{{ item.willingSellPrice | currency }}</span>
+                  <b-badge variant="info">Sell price</b-badge>
+                </div>
+                <div>
+                  <span>{{ item.assetBaseOnSP | currency }}</span>
+                  <b-badge variant="primary">Asset*</b-badge>
+                </div>
               </div>
             </div>
             <div class="mt-2 action-wrapper">
@@ -255,9 +267,15 @@ export default {
       item.ROI = item.asset + item.PNL;
       const willingProfitInPercent = this.getProfitInPercent(item.buyPrice, item.sellPrice);
       item.willingProfitInPercent = willingProfitInPercent.toFixed(2);
+      // asset base on willing profit in percent
+      const assetBaseOnWP = item.amount * item.sellPrice;
+      item.assetBaseOnWP = assetBaseOnWP.toFixed(2);
       const willingSellPrice = this
         .getStopProfitAtPrice(item.buyPrice, item.selectedProfitInPercent);
       item.willingSellPrice = willingSellPrice;
+      // asset base on willing sell price
+      const assetBaseOnSP = item.amount * item.willingSellPrice;
+      item.assetBaseOnSP = assetBaseOnSP.toFixed(2);
       return item;
     },
     reset(curStreamList) {
