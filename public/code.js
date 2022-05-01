@@ -7,7 +7,7 @@ console.log('Override Detection!!!');
   const proxied = window.XMLHttpRequest.prototype.open;
   window.XMLHttpRequest.prototype.open = function () {
     const url = arguments[1];
-    const isChartRequest = url.indexOf('api/v1/klines?symbol=') > -1;
+    const isChartRequest = url.indexOf('api/v3/klines?symbol=') > -1;
     if (isChartRequest) {
       console.log('An ajax request was made', url, isChartRequest);
       // send the new request url to the localhost

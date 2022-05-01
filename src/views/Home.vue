@@ -63,6 +63,7 @@
         </div>
       </div>
     </div>
+
     <div class="time-line d-flex flex-nowrap mt-1">
       <div
         class="group-wrapper d-flex text-nowrap"
@@ -116,6 +117,7 @@
         </div>
       </div>
     </div>
+
     <b-modal id="modal-code" title="Override Instructions">
       <p class="my-4">
         # Require Third-party Setup:
@@ -189,8 +191,6 @@
 </template>
 
 <script>
-// import Result from '@/components/global/desktop/Result';
-
 export default {
   name: 'Home',
   components: {
@@ -277,7 +277,7 @@ export default {
       // at the first time, we need to call the chart request manually
       // because the request detection can not work at the beginning
       const params = {
-        url: 'https://www.binance.com/api/v1/klines',
+        url: 'https://www.binance.com/api/v3/klines',
         isFirst: true,
       };
       await this.addStackUrl(params);

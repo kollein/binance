@@ -380,7 +380,7 @@ export default {
           symbol,
           interval: state.interval,
         };
-        // https://www.binance.com/api/v1/klines?symbol=BURGERBNB&interval=1m
+        // https://www.binance.com/api/v3/klines?symbol=BURGERBNB&interval=1m
         const queryStr = getters.getQueryStr(queries);
         newUrl = `${url}?${queryStr}`;
       }

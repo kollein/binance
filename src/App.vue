@@ -89,6 +89,7 @@ export default {
           const lastUrl = this.getLastUrlInStorage();
           // console.log('lastUrl', lastUrl);
           const iframeSrc = lastUrl || this.homeUrl;
+          console.log('iframeSrc', iframeSrc);
           this.setByProp({ iframeSrc });
           // profit percent
           const profitPercent = this.getStorageItem('profitPercent');
